@@ -7,19 +7,20 @@ Interview the user relentlessly until you reach a shared understanding. Map this
 
 Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled: the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round: number each question and give your recommended answer. Then wait for the user's answers before the next round.
 
-Format a round like so:
+Ask each round in two parts.
 
-```
-❓ **Q1** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
+First, print a **round overview** in chat: one line per frontier question, in order, formatted `Q1: <title>: <one-line gist> (rec: <one-line recommendation>)`. This is the map of where the round is leading; keep it to a single line per question.
 
-➡️ <your recommended answer>
+Then ask with the Ask Questions tool (`vscode_askQuestions`), one call per round, one question entry per frontier question. Do not ask questions as plain text.
 
----
+- `header`: `Q<n>` plus a short title matching the overview line (max 50 chars).
+- `question`: a concise prompt for the question, as required by the tool. Preserve the full question, including multiple paragraphs, in `message` without changing its substance.
+- `message`: the full body, including context, trade-offs, background, and the original question wording, in markdown.
+- `options`: the discrete choices (A)/(B)/(C). `label` is the choice; `description` carries its rationale or consequence.
+- Set `recommended: true` on your recommended option and include the recommendation in that option's `description` (e.g. "Recommended: ..."). If no discrete choices exist, omit `options` and put the recommendation in `message`.
+- Leave free-form answers enabled (`allowFreeformInput: true`) so the user can always type an answer that is not on the list.
 
-❓ **Q2** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
-
-➡️ <your recommended answer>
-```
+If the Ask Questions tool is not available in this session, fall back to the numbered text format: print the round overview first, then for each question `❓ **Q<n>** - **<title>**: <body, including choices>` followed by `➡️ <your recommended answer>`, separated by `---` rules.
 
 Each round the user answers reshapes the tree: settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one.
 
